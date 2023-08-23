@@ -125,7 +125,7 @@ impl connector::Connector for SendGridConnector {
     /// from the NDC specification.
     async fn query(
         configuration: &configuration::SendGridConfiguration,
-        state: &Self::State,
+        _state: &Self::State,
         query_request: models::QueryRequest,
     ) -> Result<models::QueryResponse, connector::QueryError> {
         query::execute(configuration, query_request).await

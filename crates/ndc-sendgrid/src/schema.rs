@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use ndc_sdk::models::{
     ArgumentInfo, FunctionInfo, ObjectField, ObjectType, ScalarType, SchemaResponse, Type,
 };
+use serde::Deserialize;
 
 pub fn make_schema_response() -> SchemaResponse {
     SchemaResponse {
@@ -45,6 +46,13 @@ const BOOL_SCALAR_TYPE: ScalarType = ScalarType {
     comparison_operators: BTreeMap::new(),
     update_operators: BTreeMap::new(),
 };
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ListTemplateRequest {
+    pub generations: Option<String>,
+    pub page_size: u32,
+    pub page_token: Option<String>,
+}
 
 fn list_template_request() -> ObjectType {
     ObjectType {
