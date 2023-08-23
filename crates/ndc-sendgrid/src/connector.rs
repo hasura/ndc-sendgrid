@@ -17,22 +17,22 @@ impl connector::Connector for SendGridConnector {
     type State = ();
 
     fn make_empty_configuration() -> configuration::RawSendGridConfiguration {
-        todo!()
+        configuration::RawSendGridConfiguration::default()
     }
 
     /// Configure a configuration maybe?
     async fn update_configuration(
-        _args: &configuration::RawSendGridConfiguration,
+        args: &configuration::RawSendGridConfiguration,
     ) -> Result<configuration::RawSendGridConfiguration, connector::UpdateConfigurationError> {
-        todo!()
+        Ok(args.clone())
     }
 
     /// Validate the raw configuration provided by the user,
     /// returning a configuration error or a validated [`Connector::Configuration`].
     async fn validate_raw_configuration(
-        _configuration: &configuration::RawSendGridConfiguration,
+        configuration: &configuration::RawSendGridConfiguration,
     ) -> Result<configuration::SendGridConfiguration, connector::ValidateError> {
-        todo!()
+        configuration::validate_raw_configuration(configuration)
     }
 
     /// Initialize the connector's in-memory state.
