@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 
-use ndc_sdk::models::{ObjectField, ObjectType, ScalarType, SchemaResponse, Type};
+use ndc_sdk::models::{
+    ArgumentInfo, FunctionInfo, ObjectField, ObjectType, ScalarType, SchemaResponse, Type,
+};
 
 pub fn make_schema_response() -> SchemaResponse {
     SchemaResponse {
@@ -21,7 +23,7 @@ pub fn make_schema_response() -> SchemaResponse {
             ),
         ]),
         collections: vec![],
-        functions: vec![],
+        functions: vec![get_function_templates()],
         procedures: vec![],
     }
 }
@@ -183,5 +185,30 @@ fn list_template_version() -> ObjectType {
                 description: Some(String::from("A Thumbnail preview of the template's html content."))
             }),
         ]),
+    }
+}
+
+pub const TEMPLATES_FUNCTION_NAME: &str = "get_function_templates";
+
+fn get_function_templates() -> FunctionInfo {
+    FunctionInfo {
+        name: String::from(TEMPLATES_FUNCTION_NAME),
+        description: Some(String::from(
+            "allows you to retrieve all transactional templates",
+        )),
+        arguments: BTreeMap::from([(
+            String::from("request"),
+            ArgumentInfo {
+                description: Some(String::from("Request Options")),
+                argument_type: Type::Named {
+                    name: String::from("list_template_request"),
+                },
+            },
+        )]),
+        result_type: Type::Array {
+            element_type: Box::new(Type::Named {
+                name: String::from("list_template_item"),
+            }),
+        },
     }
 }

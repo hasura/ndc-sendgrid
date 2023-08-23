@@ -2,6 +2,8 @@ use async_trait::async_trait;
 use ndc_sdk::connector;
 use ndc_sdk::models;
 
+use crate::query;
+
 use super::configuration;
 use super::schema;
 
@@ -47,7 +49,7 @@ impl connector::Connector for SendGridConnector {
         _configuration: &Self::Configuration,
         _metrics: &mut prometheus::Registry,
     ) -> Result<Self::State, connector::InitializationError> {
-        todo!()
+        Ok(())
     }
 
     /// Update any metrics from the state
@@ -122,10 +124,10 @@ impl connector::Connector for SendGridConnector {
     /// This function implements the [query endpoint](https://hasura.github.io/ndc-spec/specification/queries/index.html)
     /// from the NDC specification.
     async fn query(
-        _configuration: &configuration::SendGridConfiguration,
-        _state: &Self::State,
-        _query_request: models::QueryRequest,
+        configuration: &configuration::SendGridConfiguration,
+        state: &Self::State,
+        query_request: models::QueryRequest,
     ) -> Result<models::QueryResponse, connector::QueryError> {
-        todo!()
+        query::execute(configuration, query_request).await
     }
 }

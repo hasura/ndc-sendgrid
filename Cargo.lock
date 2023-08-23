@@ -956,6 +956,7 @@ dependencies = [
  "async-trait",
  "ndc-sdk",
  "prometheus",
+ "reqwest",
  "schemars",
  "serde",
  "serde_json",
