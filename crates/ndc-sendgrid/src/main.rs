@@ -1,5 +1,6 @@
 mod configuration;
 mod connector;
+mod schema;
 mod sendgrid_api;
 
 use connector::SendGridConnector;

@@ -3,6 +3,7 @@ use ndc_sdk::connector;
 use ndc_sdk::models;
 
 use super::configuration;
+use super::schema;
 
 #[derive(Clone, Default)]
 pub struct SendGridConnector {}
@@ -89,7 +90,7 @@ impl connector::Connector for SendGridConnector {
     async fn get_schema(
         _configuation: &configuration::SendGridConfiguration,
     ) -> Result<models::SchemaResponse, connector::SchemaError> {
-        todo!()
+        Ok(schema::make_schema_response())
     }
 
     /// Explain a query by creating an execution plan
