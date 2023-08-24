@@ -63,7 +63,7 @@ impl connector::Connector for SendGridConnector {
         _configuration: &configuration::SendGridConfiguration,
         _state: &Self::State,
     ) -> Result<(), connector::FetchMetricsError> {
-        todo!()
+        Ok(())
     }
 
     /// Check the health of the connector.
@@ -82,7 +82,22 @@ impl connector::Connector for SendGridConnector {
     /// This function implements the [capabilities endpoint](https://hasura.github.io/ndc-spec/specification/capabilities.html)
     /// from the NDC specification.
     async fn get_capabilities() -> models::CapabilitiesResponse {
-        todo!()
+        models::CapabilitiesResponse {
+            versions: String::from("^0.1.0"),
+            capabilities: models::Capabilities {
+                query: Some(models::QueryCapabilities {
+                    relation_comparisons: None,
+                    order_by_aggregate: None,
+                    foreach: None,
+                }),
+                explain: None,
+                relationships: None,
+                mutations: Some(models::MutationCapabilities {
+                    nested_inserts: None,
+                    returning: None,
+                }),
+            },
+        }
     }
 
     /// Get the connector's schema.
@@ -104,7 +119,7 @@ impl connector::Connector for SendGridConnector {
         _state: &Self::State,
         _query_request: models::QueryRequest,
     ) -> Result<models::ExplainResponse, connector::ExplainError> {
-        todo!()
+        Err(connector::ExplainError::UnsupportedOperation(String::from("explain is not supported")))
     }
 
     /// Execute a mutation
