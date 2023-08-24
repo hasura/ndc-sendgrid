@@ -81,8 +81,11 @@ impl Display for ErrorResponse {
         match &self.errors {
             Some(errs) => {
                 write!(f, "[")?;
-                for err in errs {
-                    write!(f, "{} ", err)?;
+                for (index, err) in errs.iter().enumerate() {
+                    write!(f, "{}", err)?;
+                    if index < errs.len() - 1 {
+                        write!(f, ", ")?;
+                    }
                 }
                 write!(f, "]")
             }

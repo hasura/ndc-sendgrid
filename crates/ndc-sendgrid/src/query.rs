@@ -10,19 +10,19 @@ use super::configuration;
 use super::schema::{ListTemplateRequest, LIST_TEMPLATES_FUNCTION_NAME};
 use super::sendgrid_api::{invoke_get_function_template, ListTransactionalTemplatesParams};
 
-fn parse_get_templates_arguments(
+fn parse_list_templates_params(
     in_args: BTreeMap<String, Argument>,
 ) -> Result<ListTransactionalTemplatesParams, QueryError> {
     let request = in_args
-        .get("request")
+        .get("params")
         .ok_or(QueryError::InvalidRequest(String::from(
-            "Couldn't find `request` field in arguments",
+            "Couldn't find 'params' field in arguments",
         )))?;
     match request {
         Argument::Literal { value } => {
             let req: ListTemplateRequest =
                 serde_json::from_value(value.clone()).map_err(|err| {
-                    QueryError::InvalidRequest(format!("Unable to deserialize 'request': {err}"))
+                    QueryError::InvalidRequest(format!("Unable to deserialize 'params': {err}"))
                 })?;
             let response = ListTransactionalTemplatesParams {
                 generations: req.generations,
@@ -44,9 +44,9 @@ pub async fn execute(
     match query_request.collection.as_str() {
         LIST_TEMPLATES_FUNCTION_NAME => {
             let args = query_request.arguments;
-            let sg_args = parse_get_templates_arguments(args)?;
+            let params = parse_list_templates_params(args)?;
             let response =
-                invoke_get_function_template(&configuration.sendgrid_api_key, &sg_args).await;
+                invoke_get_function_template(&configuration.sendgrid_api_key, &params).await;
 
             match response {
                 Ok(list_response) => {

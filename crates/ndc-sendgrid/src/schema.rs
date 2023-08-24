@@ -14,8 +14,8 @@ pub fn make_schema_response() -> SchemaResponse {
         ]),
         object_types: BTreeMap::from([
             (
-                String::from("list_template_request"),
-                list_template_request(),
+                String::from("list_template_params"),
+                list_template_params(),
             ),
             (String::from("list_template_item"), list_template_item()),
             (
@@ -54,9 +54,9 @@ pub struct ListTemplateRequest {
     pub page_token: Option<String>,
 }
 
-fn list_template_request() -> ObjectType {
+fn list_template_params() -> ObjectType {
     ObjectType {
-        description: Some(String::from("The request properties for listing transactional templates")),
+        description: Some(String::from("The request parameters for listing transactional templates")),
         fields: BTreeMap::from([
             (String::from("generations"), ObjectField {
                 r#type: Type::Nullable { underlying_type: Box::new(Type::Named {name: String::from("String")}) },
@@ -205,11 +205,11 @@ fn list_function_templates() -> FunctionInfo {
             "allows you to retrieve all transactional templates",
         )),
         arguments: BTreeMap::from([(
-            String::from("request"),
+            String::from("params"),
             ArgumentInfo {
-                description: Some(String::from("Request Options")),
+                description: Some(String::from("Request parameters")),
                 argument_type: Type::Named {
-                    name: String::from("list_template_request"),
+                    name: String::from("list_template_params"),
                 },
             },
         )]),
