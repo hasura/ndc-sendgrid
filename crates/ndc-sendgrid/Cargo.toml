@@ -15,3 +15,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.11.19" }
+indexmap = { version = "*" } # Use the version from ndc-sdk
+thiserror = { version = "*" } # Use the version from ndc-sdk

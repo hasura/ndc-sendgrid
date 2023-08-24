@@ -954,12 +954,14 @@ name = "ndc-sendgrid"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "indexmap 1.9.3",
  "ndc-sdk",
  "prometheus",
  "reqwest",
  "schemars",
  "serde",
  "serde_json",
+ "thiserror",
  "tokio",
 ]
 

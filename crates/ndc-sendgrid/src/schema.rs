@@ -24,7 +24,7 @@ pub fn make_schema_response() -> SchemaResponse {
             ),
         ]),
         collections: vec![],
-        functions: vec![get_function_templates()],
+        functions: vec![list_function_templates()],
         procedures: vec![],
     }
 }
@@ -168,7 +168,7 @@ fn list_template_version() -> ObjectType {
                 description: Some(String::from("Name of the transactional template version."))
             }),
             (String::from("subject"), ObjectField {
-                r#type: Type::Named {name: String::from("String")},
+                r#type: Type::Nullable { underlying_type: Box::new(Type::Named {name: String::from("String")}) },
                 arguments: BTreeMap::new(),
                 description: Some(String::from("Subject of the new transactional template version."))
             }),
@@ -196,11 +196,11 @@ fn list_template_version() -> ObjectType {
     }
 }
 
-pub const TEMPLATES_FUNCTION_NAME: &str = "get_function_templates";
+pub const LIST_TEMPLATES_FUNCTION_NAME: &str = "list_templates";
 
-fn get_function_templates() -> FunctionInfo {
+fn list_function_templates() -> FunctionInfo {
     FunctionInfo {
-        name: String::from(TEMPLATES_FUNCTION_NAME),
+        name: String::from(LIST_TEMPLATES_FUNCTION_NAME),
         description: Some(String::from(
             "allows you to retrieve all transactional templates",
         )),
