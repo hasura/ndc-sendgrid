@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{collections::BTreeMap, fmt::Display};
 
 use reqwest::StatusCode;
 use schemars::JsonSchema;
@@ -22,7 +22,7 @@ impl SendGridApiKey {
     }
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ListTransactionalTemplatesParams {
     pub generations: Option<String>,
     pub page_size: u32,
@@ -30,7 +30,7 @@ pub struct ListTransactionalTemplatesParams {
 }
 
 impl ListTransactionalTemplatesParams {
-    pub fn to_params(self: &Self) -> Vec<(String, String)> {
+    pub fn to_query_params(self: &Self) -> Vec<(String, String)> {
         let mut params = Vec::<(String, String)>::new();
         self.generations
             .as_ref()
@@ -120,19 +120,69 @@ pub enum RequestError<Err> {
     OtherError { error: String },
 }
 
-pub async fn invoke_get_function_template(
+#[derive(Serialize, Clone, Debug)]
+pub struct SendMailRequest {
+    pub personalizations: Vec<MailPersonalization>,
+    pub from: MailAddress,
+    pub reply_to_list: Vec<MailAddress>,
+    pub subject: String,
+    pub content: Vec<MailContent>,
+    pub attachments: Option<Vec<MailAttachment>>,
+    pub template_id: Option<String>,
+    pub headers: Option<BTreeMap<String, String>>,
+    pub send_at: Option<u32>,
+    pub batch_id: Option<String>,
+    pub asm: Option<UnsubscriptionSettings>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct MailPersonalization {
+    pub from: Option<MailAddress>,
+    pub to: Vec<MailAddress>,
+    pub cc: Option<Vec<MailAddress>>,
+    pub bcc: Option<Vec<MailAddress>>,
+    pub subject: Option<String>,
+    pub headers: Option<BTreeMap<String, String>>,
+    pub substitutions: Option<BTreeMap<String, String>>,
+    pub dynamic_template_data: Option<BTreeMap<String, String>>,
+    pub send_at: Option<u32>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct MailAddress {
+    pub email: String,
+    pub name: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct MailContent {
+    pub r#type: String,
+    pub value: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct MailAttachment {
+    pub content: String,
+    pub r#type: Option<String>,
+    pub filename: String,
+    pub disposition: Option<String>,
+    pub content_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct UnsubscriptionSettings {
+    pub group_id: String,
+    pub groups_to_display: Option<Vec<String>>,
+}
+
+pub async fn invoke_list_function_templates(
+    http_client: &reqwest::Client,
     SendGridApiKey(api_key): &SendGridApiKey,
     params: &ListTransactionalTemplatesParams,
 ) -> Result<ListTransactionalTemplatesResponse, RequestError<ErrorResponse>> {
-    let client = reqwest::Client::new();
-
-    println!("{:#?}", params);
-
-    let query_params = params.to_params();
-
-    let response = client
+    let response = http_client
         .get(format!("{SENDGRID_BASE_URL}/v3/templates"))
-        .query(&query_params)
+        .query(&(params.to_query_params()))
         .header("Authorization", format!("Bearer {api_key}"))
         .send()
         .await
@@ -147,6 +197,38 @@ pub async fn invoke_get_function_template(
             .map_err(|err| RequestError::OtherError {
                 error: err.to_string(),
             }),
+        StatusCode::BAD_REQUEST => {
+            let result = response.json::<ErrorResponse>().await;
+            match result {
+                Ok(err) => Err(RequestError::ApiError { error: err }),
+                Err(other) => Err(RequestError::OtherError {
+                    error: other.to_string(),
+                }),
+            }
+        }
+        other_code => Err(RequestError::UnexpectedStatusCode {
+            status_code: other_code,
+        }),
+    }
+}
+
+pub async fn invoke_send_mail(
+    http_client: &reqwest::Client,
+    SendGridApiKey(api_key): &SendGridApiKey,
+    request: &SendMailRequest,
+) -> Result<(), RequestError<ErrorResponse>> {
+    let response = http_client
+        .post(format!("{SENDGRID_BASE_URL}/v3/main/send"))
+        .json(request)
+        .header("Authorization", format!("Bearer {api_key}"))
+        .send()
+        .await
+        .map_err(|err| RequestError::OtherError {
+            error: err.to_string(),
+        })?;
+
+    match response.status() {
+        StatusCode::ACCEPTED => Ok(()),
         StatusCode::BAD_REQUEST => {
             let result = response.json::<ErrorResponse>().await;
             match result {

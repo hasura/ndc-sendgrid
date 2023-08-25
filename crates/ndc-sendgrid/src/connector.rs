@@ -2,13 +2,18 @@ use async_trait::async_trait;
 use ndc_sdk::connector;
 use ndc_sdk::models;
 
-use crate::query;
-
 use super::configuration;
+use super::mutation;
+use super::query;
 use super::schema;
 
 #[derive(Clone, Default)]
 pub struct SendGridConnector {}
+
+#[derive(Clone, Debug)]
+pub struct SendGridConnectorState {
+    http_client: reqwest::Client
+}
 
 #[async_trait]
 impl connector::Connector for SendGridConnector {
@@ -17,7 +22,7 @@ impl connector::Connector for SendGridConnector {
     /// The type of validated configuration
     type Configuration = configuration::SendGridConfiguration;
     /// The type of unserializable state
-    type State = ();
+    type State = SendGridConnectorState;
 
     fn make_empty_configuration() -> configuration::RawSendGridConfiguration {
         configuration::RawSendGridConfiguration::default()
@@ -46,10 +51,10 @@ impl connector::Connector for SendGridConnector {
     /// In addition, this function should register any
     /// connector-specific metrics with the metrics registry.
     async fn try_init_state(
-        _configuration: &Self::Configuration,
+        _configuration: &configuration::SendGridConfiguration,
         _metrics: &mut prometheus::Registry,
-    ) -> Result<Self::State, connector::InitializationError> {
-        Ok(())
+    ) -> Result<SendGridConnectorState, connector::InitializationError> {
+        Ok(SendGridConnectorState { http_client:reqwest::Client::new() })
     }
 
     /// Update any metrics from the state
@@ -61,7 +66,7 @@ impl connector::Connector for SendGridConnector {
     /// can be polled but not updated directly.
     fn fetch_metrics(
         _configuration: &configuration::SendGridConfiguration,
-        _state: &Self::State,
+        _state: &SendGridConnectorState,
     ) -> Result<(), connector::FetchMetricsError> {
         Ok(())
     }
@@ -71,8 +76,8 @@ impl connector::Connector for SendGridConnector {
     /// For example, this function should check that the connector
     /// is able to reach its data source over the network.
     async fn health_check(
-        _configuration: &Self::Configuration,
-        _state: &Self::State,
+        _configuration: &configuration::SendGridConfiguration,
+        _state: &SendGridConnectorState,
     ) -> Result<(), connector::HealthError> {
         Ok(())
     }
@@ -116,7 +121,7 @@ impl connector::Connector for SendGridConnector {
     /// from the NDC specification.
     async fn explain(
         _configuration: &configuration::SendGridConfiguration,
-        _state: &Self::State,
+        _state: &SendGridConnectorState,
         _query_request: models::QueryRequest,
     ) -> Result<models::ExplainResponse, connector::ExplainError> {
         Err(connector::ExplainError::UnsupportedOperation(String::from("explain is not supported")))
@@ -127,11 +132,11 @@ impl connector::Connector for SendGridConnector {
     /// This function implements the [mutation endpoint](https://hasura.github.io/ndc-spec/specification/mutations/index.html)
     /// from the NDC specification.
     async fn mutation(
-        _configuration: &configuration::SendGridConfiguration,
-        _state: &Self::State,
-        _request: models::MutationRequest,
+        configuration: &configuration::SendGridConfiguration,
+        state: &SendGridConnectorState,
+        request: models::MutationRequest,
     ) -> Result<models::MutationResponse, connector::MutationError> {
-        todo!("mutations are currently not implemented")
+        mutation::execute(&state.http_client, configuration, request).await
     }
 
     /// Execute a query
@@ -140,9 +145,9 @@ impl connector::Connector for SendGridConnector {
     /// from the NDC specification.
     async fn query(
         configuration: &configuration::SendGridConfiguration,
-        _state: &Self::State,
+        state: &SendGridConnectorState,
         query_request: models::QueryRequest,
     ) -> Result<models::QueryResponse, connector::QueryError> {
-        query::execute(configuration, query_request).await
+        query::execute(&state.http_client, configuration, query_request).await
     }
 }

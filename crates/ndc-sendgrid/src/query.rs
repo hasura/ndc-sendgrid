@@ -1,5 +1,4 @@
 use std::collections::BTreeMap;
-
 use indexmap::IndexMap;
 use ndc_sdk::{
     connector::QueryError,
@@ -7,8 +6,8 @@ use ndc_sdk::{
 };
 
 use super::configuration;
-use super::schema::{ListTemplateRequest, LIST_TEMPLATES_FUNCTION_NAME};
-use super::sendgrid_api::{invoke_get_function_template, ListTransactionalTemplatesParams};
+use super::schema::LIST_TEMPLATES_FUNCTION_NAME;
+use super::sendgrid_api::{invoke_list_function_templates, ListTransactionalTemplatesParams};
 
 fn parse_list_templates_params(
     in_args: BTreeMap<String, Argument>,
@@ -20,16 +19,9 @@ fn parse_list_templates_params(
         )))?;
     match request {
         Argument::Literal { value } => {
-            let req: ListTemplateRequest =
-                serde_json::from_value(value.clone()).map_err(|err| {
+            serde_json::from_value(value.clone()).map_err(|err| {
                     QueryError::InvalidRequest(format!("Unable to deserialize 'params': {err}"))
-                })?;
-            let response = ListTransactionalTemplatesParams {
-                generations: req.generations,
-                page_size: req.page_size,
-                page_token: req.page_token,
-            };
-            Ok(response)
+                })
         }
         Argument::Variable { .. } => Err(QueryError::UnsupportedOperation(String::from(
             "Variables not currently supported",
@@ -38,6 +30,7 @@ fn parse_list_templates_params(
 }
 
 pub async fn execute(
+    http_client: &reqwest::Client,
     configuration: &configuration::SendGridConfiguration,
     query_request: QueryRequest,
 ) -> Result<QueryResponse, QueryError> {
@@ -46,7 +39,7 @@ pub async fn execute(
             let args = query_request.arguments;
             let params = parse_list_templates_params(args)?;
             let response =
-                invoke_get_function_template(&configuration.sendgrid_api_key, &params).await;
+                invoke_list_function_templates(http_client, &configuration.sendgrid_api_key, &params).await;
 
             match response {
                 Ok(list_response) => {
