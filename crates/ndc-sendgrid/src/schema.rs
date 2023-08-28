@@ -34,6 +34,7 @@ pub fn make_schema_response() -> SchemaResponse {
                 String::from("unsubscription_settings"),
                 unsubscription_settings(),
             ),
+            (String::from("send_mail_response"), send_mail_response()),
         ]),
         collections: vec![],
         functions: vec![list_function_templates()],
@@ -537,6 +538,19 @@ fn unsubscription_settings() -> ObjectType {
     }
 }
 
+fn send_mail_response() -> ObjectType {
+    ObjectType {
+        description: Some(String::from("The response from a mail send request.")),
+        fields: BTreeMap::from([
+            (String::from("batch_id"), ObjectField {
+                r#type: nullable(named("String")),
+                arguments: BTreeMap::new(),
+                description: Some(String::from("The batch ID used with the send mail request."))
+            }),
+        ]),
+    }
+}
+
 pub const SEND_MAIL: &str = "send_mail";
 
 fn send_mail() -> ProcedureInfo {
@@ -550,7 +564,7 @@ fn send_mail() -> ProcedureInfo {
                 argument_type: named("send_mail_request"),
             },
         )]),
-        result_type: named("String"),
+        result_type: named("send_mail_response"),
     }
 }
 

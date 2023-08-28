@@ -218,7 +218,7 @@ pub async fn invoke_send_mail(
     request: &SendMailRequest,
 ) -> Result<(), RequestError<ErrorResponse>> {
     let response = http_client
-        .post(format!("{SENDGRID_BASE_URL}/v3/main/send"))
+        .post(format!("{SENDGRID_BASE_URL}/v3/mail/send"))
         .json(request)
         .header("Authorization", format!("Bearer {api_key}"))
         .send()
