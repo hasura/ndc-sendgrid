@@ -1,14 +1,19 @@
 # SendGrid Connector
 
-The SendGrid Native Data Connector allows for connecting to the SendGrid v3 API and exposing that from your Hasura API.
+The SendGrid Native Data Connector allows for connecting to the SendGrid v3 API and exposing its functionality from your Hasura API.
+While this is a functional implementation of the SendGrid API,
+it also serves as a minimal example of an "Action" style connector using the
+[Rust Data Connector SDK](https://github.com/hasura/ndc-hub#rusk-sdk).
 
-* [SendGrid Connector information in the Hasura Connectors directory](https://hasura.io/connectors/sendgrid) -- TODO
+* [SendGrid Connector information in the Hasura Connectors directory](https://hasura.io/connectors/sendgrid)
 * TODO: Docs Link
 
 In order to use this connector you will need to:
 
 * Create a [SendGrid API account](https://signup.sendgrid.com/)
 * Create an [API key](https://app.sendgrid.com/settings/api_keys)
+* Log in to A Hasura CLI Session
+* Create a Pre-Shared Token for service authentication between the Hasura V3 Engine and your connector
 
 ## Features
 
@@ -42,15 +47,16 @@ The following steps will allow you to deploy the connector and use it in a Hasur
      hasura3 connector create sendgrid:v1 \
      --github-repo-url https://github.com/hasura/ndc-sendgrid/tree/main \
      --volume ./sendgrid.connector.configuration.json:/config.json
+     --env CONNECTOR_SERVICE_TOKEN='MY-SERVICE-TOKEN'
      ```
-* Ensure that your deployed connector is referenced from your metadata.
-* Edit your metadata using the LSP support to import the defined schema, functions, procedures.
+* Ensure that your deployed connector is referenced from your metadata with the service token
+* Edit your metadata using the LSP support to import the defined schema, functions, procedures
 * Deploy or update your Hasura cloud project
      ```
      hasura3 cloud build create --project-id my-project-id \
      --metadata-file metadata.json my-build-id
      ```
-* View in your cloud console, access via the graphql API.
+* View in your cloud console, access via the graphql API
 
 
 ## For Developers
