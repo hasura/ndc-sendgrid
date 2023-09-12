@@ -2,7 +2,7 @@
 
 The SendGrid Native Data Connector allows for connecting to the SendGrid v3 API and exposing that from your Hasura API.
 
-* TODO: Hub Link
+* [SendGrid Connector information in the Hasura Connectors directory](https://hasura.io/connectors/sendgrid) -- TODO
 * TODO: Docs Link
 
 In order to use this connector you will need to:
