@@ -26,4 +26,4 @@ RUN apt-get update \
 COPY ./entrypoint.sh ./entrypoint.sh
 
 ENTRYPOINT [ "./entrypoint.sh", "./ndc-sendgrid"]
-CMD ["serve", "--configuration", "/config.json"]
+CMD ["serve", "--configuration", "/config.json", "--port", "8080"]
