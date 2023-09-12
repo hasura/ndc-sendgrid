@@ -39,12 +39,12 @@ The following steps will allow you to deploy the connector and use it in a Hasur
      ```
 * Deploy the connector
      ```
-     hasura3 connector create github.com/hasura/ts-connector \
+     hasura3 connector create sendgrid:v1 \
      --github-repo-url https://github.com/hasura/ndc-sendgrid/tree/main \
-     --config-file sendgrid.connector.configuration.json
+     --volume ./sendgrid.connector.configuration.json:/config.json
      ```
 * Ensure that your deployed connector is referenced from your metadata.
-* Edit your metadata using the LSP support to import the defined procedures.
+* Edit your metadata using the LSP support to import the defined schema, functions, procedures.
 * Deploy or update your Hasura cloud project
      ```
      hasura3 cloud build create --project-id my-project-id \
