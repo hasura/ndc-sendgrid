@@ -59,19 +59,14 @@ The following instructions are for developers who wish to contribute to the Send
 
 ## Build
 
-### Prerequisites
+Prerequisites:
 
 1. Install [rustup](https://www.rust-lang.org/tools/install).
 
-### Compile
+Commands:
 
 ```
 cargo build
-```
-
-### Run
-
-```
 cargo run serve --configuration <(echo '{"version": 1, "sendgrid_api_key":"YOUR-API-KEY-HERE"}')
 ```
 
