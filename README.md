@@ -19,7 +19,7 @@ This connector is a minimal implementation of the SendGrid v3 API functions:
 
 It also serves as an example of how an `Action` style connector can be implemented in Hasura V3.
 
-# For Hasura Users
+## For Hasura Users
 
 If you wish to use this connector with your Hasura projects, the best instructions can be found on the Hasura Hub (TODO: Link to hub page for SendGrid Connector).
 
@@ -53,11 +53,11 @@ The following steps will allow you to deploy the connector and use it in a Hasur
 * View in your cloud console, access via the graphql API.
 
 
-# For Developers
+## For Developers
 
 The following instructions are for developers who wish to contribute to the SendGrid Connector.
 
-## Build
+### Build
 
 Prerequisites:
 
@@ -70,7 +70,7 @@ cargo build
 cargo run serve --configuration <(echo '{"version": 1, "sendgrid_api_key":"YOUR-API-KEY-HERE"}')
 ```
 
-## Docker
+### Docker
 
 The `Dockerfile` is used by the `connector create` command and can be tested as follows:
 
