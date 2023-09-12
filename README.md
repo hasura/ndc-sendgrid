@@ -76,5 +76,5 @@ The `Dockerfile` is used by the `connector create` command and can be tested as 
 
 ```
 docker build . --tag ndc-sendgrid
-docker run -it --env CONFIG='{"version": 1, "sendgrid_api_key": "YOUR-API-KEY-HERE"}' ndc-sendgrid
+docker run -it --v ./sendgrid.connector.configuration.json:/config.json ndc-sendgrid
 ```
