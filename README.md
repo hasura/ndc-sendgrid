@@ -5,6 +5,10 @@ The SendGrid Native Data Connector allows for connecting to the SendGrid v3 API 
 * TODO: Hub Link
 * TODO: Docs Link
 
+In order to use this connector you will need to:
+
+* Create a [SendGrid API account](https://signup.sendgrid.com/)
+* Create an [API key](https://app.sendgrid.com/settings/api_keys)
 
 ## Features
 
@@ -23,7 +27,6 @@ The following steps will allow you to deploy the connector and use it in a Hasur
 
 * Create a Hasura V3 Project (or use an existing project)
 * Ensure that you have a metadata definition
-* Create a [SendGrid API account](https://signup.sendgrid.com/) and [create an API key](https://app.sendgrid.com/settings/api_keys).
 * Create a configuration for the SendGrid Connector referencing your credentials:
      `sendgrid.connector.configuration.json`
      ```
@@ -58,8 +61,7 @@ The following instructions are for developers who wish to contribute to the Send
 
 ### Prerequisites
 
-1. Create a [SendGrid API account](https://signup.sendgrid.com/) and [create an API key](https://app.sendgrid.com/settings/api_keys).
-2. Install [rustup](https://www.rust-lang.org/tools/install).
+1. Install [rustup](https://www.rust-lang.org/tools/install).
 
 ### Compile
 
@@ -75,7 +77,9 @@ cargo run serve --configuration <(echo '{"version": 1, "sendgrid_api_key":"YOUR-
 
 ## Docker
 
+The `Dockerfile` is used by the `connector create` command and can be tested as follows:
+
 ```
 docker build . --tag ndc-sendgrid
-docker run -it --env CONFIG='{"version": 1, "sendgrid_api_key": "lol"}' ndc-sendgrid
+docker run -it --env CONFIG='{"version": 1, "sendgrid_api_key": "YOUR-API-KEY-HERE"}' ndc-sendgrid
 ```
