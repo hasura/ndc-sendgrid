@@ -24,7 +24,6 @@ RUN apt-get update \
       libssl-dev ca-certificates
 
 COPY ./entrypoint.sh ./entrypoint.sh
-COPY ./config.json /config.json
 
 ENTRYPOINT [ "./entrypoint.sh", "./ndc-sendgrid"]
-CMD ["serve", "--configuration", "/config.json", "--port", "8080"]
+CMD ["serve", "--configuration", "/etc/connector/config.json", "--port", "8080"]
