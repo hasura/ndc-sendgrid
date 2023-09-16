@@ -28,6 +28,14 @@ impl connector::Connector for SendGridConnector {
         configuration::RawSendGridConfiguration::default()
     }
 
+    fn get_read_regions(_conf: &Self::Configuration) -> std::vec::Vec<std::string::String> {
+        vec!()
+    }
+
+    fn get_write_regions(_conf: &Self::Configuration) -> std::vec::Vec<std::string::String> {
+        vec!()
+    }
+
     /// Configure a configuration maybe?
     async fn update_configuration(
         args: &configuration::RawSendGridConfiguration,
@@ -39,6 +47,7 @@ impl connector::Connector for SendGridConnector {
     /// returning a configuration error or a validated [`Connector::Configuration`].
     async fn validate_raw_configuration(
         configuration: &configuration::RawSendGridConfiguration,
+        _regions: &std::collections::BTreeMap<std::string::String,std::vec::Vec<std::string::String> >
     ) -> Result<configuration::SendGridConfiguration, connector::ValidateError> {
         configuration::validate_raw_configuration(configuration)
     }
