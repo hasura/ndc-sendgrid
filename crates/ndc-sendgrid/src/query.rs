@@ -9,21 +9,67 @@ use super::configuration;
 use super::schema::LIST_TEMPLATES_FUNCTION_NAME;
 use super::sendgrid_api::{invoke_list_function_templates, ListTransactionalTemplatesParams};
 
+
+
+// String::from("generations"),
+// ArgumentInfo {
+//     description: Some(String::from("Comma-delimited list specifying which generations of templates to return. Options are legacy, dynamic or legacy,dynamic")),
+//     argument_type: nullable(named("String"))
+// }),
+// (
+// String::from("page_size"),
+// ArgumentInfo {
+//     description: Some(String::from("The number of templates to be returned in each page of results")),
+//     argument_type: named("Int")
+// }),
+// (
+// String::from("page_token"),
+// ArgumentInfo {
+//     description: Some(String::from("A token corresponding to a specific page of results, as provided by metadata")),
+//     argument_type: nullable(named("String"))
+// }),
+
+
 fn parse_list_templates_params(
     in_args: BTreeMap<String, Argument>,
 ) -> Result<ListTransactionalTemplatesParams, QueryError> {
-    let request = in_args
-        .get("params")
+    let generations = in_args
+        .get("generations")
         .ok_or(QueryError::InvalidRequest(String::from(
-            "Couldn't find 'params' field in arguments",
+            "Couldn't find 'generations' field in arguments",
         )))?;
-    match request {
-        Argument::Literal { value } => {
-            serde_json::from_value(value.clone()).map_err(|err| {
+    let page_size = in_args
+        .get("page_size")
+        .ok_or(QueryError::InvalidRequest(String::from(
+            "Couldn't find 'page_size' field in arguments",
+        )))?;
+    let page_token = in_args
+        .get("page_token")
+        .ok_or(QueryError::InvalidRequest(String::from(
+            "Couldn't find 'page_token' field in arguments",
+        )))?;
+    match (generations, page_size, page_token) {
+        ( Argument::Literal { value: generations_value },
+          Argument::Literal { value: page_size_value },
+          Argument::Literal { value: page_token_value } ) => {
+            let generations_parsed = serde_json::from_value(generations_value.clone()).map_err(|err| {
                     QueryError::InvalidRequest(format!("Unable to deserialize 'params': {err}"))
-                })
-        }
-        Argument::Variable { .. } => Err(QueryError::UnsupportedOperation(String::from(
+                })?;
+            let page_size_parsed = serde_json::from_value(page_size_value.clone()).map_err(|err| {
+                    QueryError::InvalidRequest(format!("Unable to deserialize 'params': {err}"))
+                })?;
+            let page_token_parsed = serde_json::from_value(page_token_value.clone()).map_err(|err| {
+                    QueryError::InvalidRequest(format!("Unable to deserialize 'params': {err}"))
+                })?;
+            Ok(
+                ListTransactionalTemplatesParams {
+                    generations: generations_parsed,
+                    page_size: page_size_parsed,
+                    page_token: page_token_parsed
+                }
+            )
+          }
+        _ => Err(QueryError::UnsupportedOperation(String::from(
             "Variables not currently supported",
         ))),
     }

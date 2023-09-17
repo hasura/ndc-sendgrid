@@ -16,12 +16,8 @@ pub fn make_schema_response() -> SchemaResponse {
             (String::from("Bool"), BOOL_SCALAR_TYPE),
         ]),
         object_types: BTreeMap::from([
-            (String::from("list_template_params"), list_template_params()),
             (String::from("list_template_item"), list_template_item()),
-            (
-                String::from("list_template_version"),
-                list_template_version(),
-            ),
+            (String::from("list_template_version"), list_template_version()),
             (String::from("send_mail_request"), send_mail_request()),
             (String::from("mail_personalization"), mail_personalization()),
             (String::from("mail_address"), mail_address()),
@@ -30,14 +26,13 @@ pub fn make_schema_response() -> SchemaResponse {
             (String::from("template_variable"), template_variable()),
             (String::from("mail_content"), mail_content()),
             (String::from("mail_attachment"), mail_attachment()),
-            (
-                String::from("unsubscription_settings"),
-                unsubscription_settings(),
-            ),
+            (String::from("unsubscription_settings"), unsubscription_settings()),
             (String::from("send_mail_response"), send_mail_response()),
         ]),
         collections: vec![],
-        functions: vec![list_function_templates()],
+        functions: vec![
+            list_function_templates(),
+        ],
         procedures: vec![send_mail()],
     }
 }
@@ -59,26 +54,6 @@ const BOOL_SCALAR_TYPE: ScalarType = ScalarType {
     comparison_operators: BTreeMap::new(),
     update_operators: BTreeMap::new(),
 };
-
-fn list_template_params() -> ObjectType {
-    ObjectType {
-        description: Some(String::from("The request parameters for listing transactional templates")),
-        fields: BTreeMap::from([
-            (String::from("generations"), ObjectField {
-                r#type: nullable(named("String")),
-                description: Some(String::from("Comma-delimited list specifying which generations of templates to return. Options are legacy, dynamic or legacy,dynamic"))
-            }),
-            (String::from("page_size"), ObjectField {
-                r#type: named("Int"),
-                description: Some(String::from("The number of templates to be returned in each page of results"))
-            }),
-            (String::from("page_token"), ObjectField {
-                r#type: nullable(named("String")),
-                description: Some(String::from("A token corresponding to a specific page of results, as provided by metadata"))
-            }),
-        ]),
-    }
-}
 
 fn list_template_item() -> ObjectType {
     ObjectType {
@@ -184,12 +159,24 @@ fn list_function_templates() -> FunctionInfo {
             "allows you to retrieve all transactional templates",
         )),
         arguments: BTreeMap::from([(
-            String::from("params"),
+            String::from("generations"),
             ArgumentInfo {
-                description: Some(String::from("Request parameters")),
-                argument_type: named("list_template_params"),
-            },
-        )]),
+                description: Some(String::from("Comma-delimited list specifying which generations of templates to return. Options are legacy, dynamic or legacy,dynamic")),
+                argument_type: nullable(named("String"))
+            }),
+            (
+            String::from("page_size"),
+            ArgumentInfo {
+                description: Some(String::from("The number of templates to be returned in each page of results")),
+                argument_type: named("Int")
+            }),
+            (
+            String::from("page_token"),
+            ArgumentInfo {
+                description: Some(String::from("A token corresponding to a specific page of results, as provided by metadata")),
+                argument_type: nullable(named("String"))
+            }),
+        ]),
         result_type: array_of(named("list_template_item")),
     }
 }
@@ -526,7 +513,7 @@ fn nullable(underlying: Type) -> Type {
 }
 
 fn array_of(element: Type) -> Type {
-    Type::Nullable {
-        underlying_type: Box::new(element),
+    Type::Array {
+        element_type: Box::new(element),
     }
 }
