@@ -6,7 +6,7 @@ it also serves as a minimal example of an "Action" style connector using the
 [Rust Data Connector SDK](https://github.com/hasura/ndc-hub#rusk-sdk).
 
 * [SendGrid Connector information in the Hasura Connectors directory](https://hasura.io/connectors/sendgrid)
-* TODO: Docs Link
+* [Hasura V3 Documentation](https://hasura.io/docs/3.0)
 
 In order to use this connector you will need to:
 
