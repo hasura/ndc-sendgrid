@@ -26,7 +26,7 @@ It also serves as an example of how an `Action` style connector can be implement
 
 ## For Hasura Users
 
-If you wish to use this connector with your Hasura projects, the best instructions can be found on the Hasura Hub (TODO: Link to hub page for SendGrid Connector).
+If you wish to use this connector with your Hasura projects, the best instructions can be found on the [Hasura Hub SendGrid Connector listing](https://hasura.io/connectors/sendgrid).
 
 The following steps will allow you to deploy the connector and use it in a Hasura V3 project:
 
