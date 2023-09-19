@@ -4,6 +4,7 @@ use ndc_sdk::{
     connector::QueryError,
     models::{Argument, QueryRequest, QueryResponse, RowFieldValue, RowSet},
 };
+use serde_json::json;
 
 use super::configuration;
 use super::schema::LIST_TEMPLATES_FUNCTION_NAME;
@@ -86,11 +87,11 @@ pub async fn execute(
             let params = parse_list_templates_params(args)?;
             let response =
                 invoke_list_function_templates(http_client, &configuration.sendgrid_api_key, &params).await;
-
             match response {
                 Ok(list_response) => {
                     let result = serde_json::to_value(list_response.result)
                         .map_err(|err| QueryError::Other(Box::new(err)))?;
+                    let result = json!({"rows": result, "aggregates": null});
                     let response_row =
                         IndexMap::from([(String::from("__value"), RowFieldValue(result))]);
                     Ok(QueryResponse(vec![RowSet {

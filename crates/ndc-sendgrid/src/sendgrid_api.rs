@@ -226,7 +226,6 @@ pub async fn invoke_send_mail(
         .map_err(|err| RequestError::OtherError {
             error: err.to_string(),
         })?;
-
     match response.status() {
         StatusCode::ACCEPTED => Ok(()),
         StatusCode::BAD_REQUEST => {
