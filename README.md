@@ -52,8 +52,7 @@ The following steps will allow you to deploy the connector and use it in a Hasur
 * Edit your metadata using the LSP support to import the defined schema, functions, procedures
 * Deploy or update your Hasura cloud project
      ```
-     hasura3 cloud build create --project-id my-project-id \
-     --metadata-file metadata.json my-build-id
+     hasura3 cloud build create --project-id my-project-id --metadata-file metadata.hml
      ```
 * View in your cloud console, access via the graphql API
 
