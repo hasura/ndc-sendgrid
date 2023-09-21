@@ -33,21 +33,21 @@ use super::sendgrid_api::{invoke_list_function_templates, ListTransactionalTempl
 fn parse_list_templates_params(
     in_args: BTreeMap<String, Argument>,
 ) -> Result<ListTransactionalTemplatesParams, QueryError> {
-    let generations = in_args
-        .get("generations")
-        .ok_or(QueryError::InvalidRequest(String::from(
-            "Couldn't find 'generations' field in arguments",
-        )))?;
     let page_size = in_args
         .get("page_size")
         .ok_or(QueryError::InvalidRequest(String::from(
             "Couldn't find 'page_size' field in arguments",
         )))?;
+
+    let default_generations = Argument::Literal { value: serde_json::json!("legacy,dynamic") };
+    let generations = in_args
+        .get("generations")
+        .unwrap_or(&default_generations);
+
     let page_token = in_args
         .get("page_token")
-        .ok_or(QueryError::InvalidRequest(String::from(
-            "Couldn't find 'page_token' field in arguments",
-        )))?;
+        .unwrap_or(&Argument::Literal { value: serde_json::Value::Null });
+
     match (generations, page_size, page_token) {
         ( Argument::Literal { value: generations_value },
           Argument::Literal { value: page_size_value },
