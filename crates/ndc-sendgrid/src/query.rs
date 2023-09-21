@@ -9,27 +9,6 @@ use super::configuration;
 use super::schema::LIST_TEMPLATES_FUNCTION_NAME;
 use super::sendgrid_api::{invoke_list_function_templates, ListTransactionalTemplatesParams};
 
-
-
-// String::from("generations"),
-// ArgumentInfo {
-//     description: Some(String::from("Comma-delimited list specifying which generations of templates to return. Options are legacy, dynamic or legacy,dynamic")),
-//     argument_type: nullable(named("String"))
-// }),
-// (
-// String::from("page_size"),
-// ArgumentInfo {
-//     description: Some(String::from("The number of templates to be returned in each page of results")),
-//     argument_type: named("Int")
-// }),
-// (
-// String::from("page_token"),
-// ArgumentInfo {
-//     description: Some(String::from("A token corresponding to a specific page of results, as provided by metadata")),
-//     argument_type: nullable(named("String"))
-// }),
-
-
 fn parse_list_templates_params(
     in_args: BTreeMap<String, Argument>,
 ) -> Result<ListTransactionalTemplatesParams, QueryError> {

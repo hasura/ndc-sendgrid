@@ -99,12 +99,12 @@ impl Display for ErrorResponse {
 #[derive(Deserialize, Clone, Debug)]
 pub struct ErrorItem {
     pub message: String,
-    pub error_id: String,
+    pub field: String,
 }
 
 impl Display for ErrorItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {}", self.error_id, self.message)
+        write!(f, "{}: {}", self.field, self.message)
     }
 }
 
@@ -118,6 +118,22 @@ pub enum RequestError<Err> {
     UnexpectedStatusCode { status_code: StatusCode },
     #[error("Unknown error: {error}")]
     OtherError { error: String },
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct SimpleSendMailRequest {
+    pub from: MailAddress,
+    pub to: MailAddress,
+    pub cc: Option<MailAddress>,
+    pub bcc: Option<MailAddress>,
+    pub reply_to: Option<MailAddress>,
+    pub subject: String,
+    pub content: MailContent,
+    pub attachment: Option<MailAttachment>,
+    pub template_id: Option<String>,
+    pub send_at: Option<u32>,
+    pub batch_id: Option<String>,
+    pub asm: Option<UnsubscriptionSettings>,
 }
 
 #[derive(Serialize, Clone, Debug)]
