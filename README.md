@@ -1,9 +1,10 @@
 # SendGrid Connector
 
-The SendGrid Native Data Connector allows for connecting to the SendGrid v3 API and exposing its functionality from your Hasura API.
-While this is a functional implementation of the SendGrid API,
-it also serves as a minimal example of an "Action" style connector using the
-[Rust Data Connector SDK](https://github.com/hasura/ndc-hub#rusk-sdk).
+The SendGrid Native Data Connector allows for connecting to the SendGrid v3 API and exposing its functionality from your
+Hasura API.
+
+While this is a functional implementation of the SendGrid API, it also serves as a minimal example of an "Action"
+style connector using the [Rust Data Connector SDK](https://github.com/hasura/ndc-hub#rusk-sdk).
 
 * [SendGrid Connector information in the Hasura Connectors directory](https://hasura.io/connectors/sendgrid)
 * [Hasura V3 Documentation](https://hasura.io/docs/3.0)
@@ -26,7 +27,8 @@ It also serves as an example of how an `Action` style connector can be implement
 
 ## For Hasura Users
 
-If you wish to use this connector with your Hasura projects, the best instructions can be found on the [Hasura Hub SendGrid Connector listing](https://hasura.io/connectors/sendgrid).
+If you wish to use this connector with your Hasura projects, the best instructions can be found on the
+[Hasura Hub SendGrid Connector listing](https://hasura.io/connectors/sendgrid).
 
 The following steps will allow you to deploy the connector and use it in a Hasura V3 project:
 
@@ -57,28 +59,7 @@ The following steps will allow you to deploy the connector and use it in a Hasur
 * View in your cloud console, access via the graphql API
 
 
-## For Developers
+## Development
 
-The following instructions are for developers who wish to contribute to the SendGrid Connector.
+Check out information on how to contribute to the development of this connector [here](./docs/development.md).
 
-### Build
-
-Prerequisites:
-
-1. Install [rustup](https://www.rust-lang.org/tools/install).
-
-Commands:
-
-```
-cargo build
-cargo run serve --configuration <(echo '{"version": 1, "sendgrid_api_key":"YOUR-API-KEY-HERE"}')
-```
-
-### Docker
-
-The `Dockerfile` is used by the `connector create` command and can be tested as follows:
-
-```
-docker build . --tag ndc-sendgrid
-docker run -it --v ./sendgrid.connector.configuration.json:/config.json ndc-sendgrid
-```
