@@ -17,7 +17,10 @@ pub fn make_schema_response() -> SchemaResponse {
         ]),
         object_types: BTreeMap::from([
             (String::from("list_template_item"), list_template_item()),
-            (String::from("list_template_version"), list_template_version()),
+            (
+                String::from("list_template_version"),
+                list_template_version(),
+            ),
             (String::from("send_mail_request"), send_mail_request()),
             (String::from("mail_personalization"), mail_personalization()),
             (String::from("mail_address"), mail_address()),
@@ -26,13 +29,14 @@ pub fn make_schema_response() -> SchemaResponse {
             (String::from("template_variable"), template_variable()),
             (String::from("mail_content"), mail_content()),
             (String::from("mail_attachment"), mail_attachment()),
-            (String::from("unsubscription_settings"), unsubscription_settings()),
+            (
+                String::from("unsubscription_settings"),
+                unsubscription_settings(),
+            ),
             (String::from("send_mail_response"), send_mail_response()),
         ]),
         collections: vec![],
-        functions: vec![
-            list_function_templates(),
-        ],
+        functions: vec![list_function_templates()],
         procedures: vec![send_mail()],
     }
 }
@@ -40,19 +44,16 @@ pub fn make_schema_response() -> SchemaResponse {
 const STRING_SCALAR_TYPE: ScalarType = ScalarType {
     aggregate_functions: BTreeMap::new(),
     comparison_operators: BTreeMap::new(),
-    update_operators: BTreeMap::new(),
 };
 
 const INT_SCALAR_TYPE: ScalarType = ScalarType {
     aggregate_functions: BTreeMap::new(),
     comparison_operators: BTreeMap::new(),
-    update_operators: BTreeMap::new(),
 };
 
 const BOOL_SCALAR_TYPE: ScalarType = ScalarType {
     aggregate_functions: BTreeMap::new(),
     comparison_operators: BTreeMap::new(),
-    update_operators: BTreeMap::new(),
 };
 
 fn list_template_item() -> ObjectType {
@@ -474,12 +475,15 @@ fn unsubscription_settings() -> ObjectType {
 fn send_mail_response() -> ObjectType {
     ObjectType {
         description: Some(String::from("The response from a mail send request.")),
-        fields: BTreeMap::from([
-            (String::from("batch_id"), ObjectField {
+        fields: BTreeMap::from([(
+            String::from("batch_id"),
+            ObjectField {
                 r#type: nullable(named("String")),
-                description: Some(String::from("The batch ID used with the send mail request."))
-            }),
-        ]),
+                description: Some(String::from(
+                    "The batch ID used with the send mail request.",
+                )),
+            },
+        )]),
     }
 }
 

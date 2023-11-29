@@ -27,7 +27,7 @@ pub struct SendGridConfiguration {
 }
 
 pub fn validate_raw_configuration(
-    raw_configuration: &RawSendGridConfiguration,
+    raw_configuration: RawSendGridConfiguration,
 ) -> Result<SendGridConfiguration, connector::ValidateError> {
     if raw_configuration.version != CURRENT_VERSION {
         return Err(mk_single_error("version", "Unknown configuration version"));
