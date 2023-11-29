@@ -476,11 +476,11 @@ fn send_mail_response() -> ObjectType {
     ObjectType {
         description: Some(String::from("The response from a mail send request.")),
         fields: BTreeMap::from([(
-            String::from("batch_id"),
+            String::from("status"),
             ObjectField {
                 r#type: nullable(named("String")),
                 description: Some(String::from(
-                    "The batch ID used with the send mail request.",
+                    "The status response of success from the send mail request.",
                 )),
             },
         )]),

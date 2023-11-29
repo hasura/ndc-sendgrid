@@ -51,7 +51,6 @@ async fn process_operation(
 
 fn complicate_request(simple_request: SimpleSendMailRequest) -> sendgrid_api::SendMailRequest {
     let personalization = MailPersonalization {
-        from: Some(simple_request.from.clone()),
         to: vec![simple_request.to],
         cc: simple_request.cc.map(|x| vec![x]),
         bcc: simple_request.bcc.map(|x| vec![x]),
@@ -86,18 +85,9 @@ async fn process_send_mail(
     let simple_request = parse_simple_send_mail_args(&arguments)?;
     let request = complicate_request(simple_request);
 
-    println!("+++++++++++++++++++++++++++++++");
-    println!("{:?}", configuration.clone());
-
     sendgrid_api::invoke_send_mail(http_client, &configuration.sendgrid_api_key, &request)
         .await
-        .map_err(|err| {
-            println!("{:?}", err);
-            MutationError::Other(Box::new(err))
-        })?;
-
-    println!("And here");
-    println!("+++++++++++++++++++++++++++++++");
+        .map_err(|err| MutationError::Other(Box::new(err)))?;
 
     let mut row = IndexMap::new();
 
@@ -106,12 +96,7 @@ async fn process_send_mail(
             match field {
                 Field::Column { column } => {
                     let field_value = match column.as_str() {
-                        "batch_id" => RowFieldValue(
-                            request
-                                .batch_id
-                                .clone()
-                                .map_or(Value::Null, |id| Value::String(id)),
-                        ),
+                        "status" => RowFieldValue(Value::String("success".to_string())),
                         other_column => {
                             return Err(MutationError::InvalidRequest(format!(
                                 "Unknown column {other_column}"
@@ -129,10 +114,16 @@ async fn process_send_mail(
         }
     }
 
-    Ok(MutationOperationResults {
+    let response = MutationOperationResults {
         affected_rows: 1,
         returning: Some(vec![row]),
-    })
+    };
+
+    println!("[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]");
+    println!("{:?}", response);
+    println!("[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]");
+
+    Ok(response)
 }
 
 fn invalid_arg(err: &str) -> MutationError {
@@ -262,7 +253,6 @@ fn _parse_send_mail_args(
             .personalizations
             .into_iter()
             .map(|personalization| sendgrid_api::MailPersonalization {
-                from: personalization.from,
                 to: personalization.to,
                 cc: personalization.cc,
                 bcc: personalization.bcc,
