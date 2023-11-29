@@ -96,14 +96,17 @@ async fn process_send_mail(
             match field {
                 Field::Column { column } => {
                     let field_value = match column.as_str() {
-                        "status" => RowFieldValue(Value::String("success".to_string())),
+                        "status" => RowFieldValue(Value::Object(serde_json::Map::from_iter([(
+                            "status".into(),
+                            Value::String("success".to_string()),
+                        )]))),
                         other_column => {
                             return Err(MutationError::InvalidRequest(format!(
                                 "Unknown column {other_column}"
                             )))
                         }
                     };
-                    row.insert(field_name, field_value);
+                    row.insert("__value".to_string(), field_value);
                 }
                 Field::Relationship { relationship, .. } => {
                     return Err(MutationError::InvalidRequest(format!(
@@ -118,10 +121,6 @@ async fn process_send_mail(
         affected_rows: 1,
         returning: Some(vec![row]),
     };
-
-    println!("[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]");
-    println!("{:?}", response);
-    println!("[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]");
 
     Ok(response)
 }
