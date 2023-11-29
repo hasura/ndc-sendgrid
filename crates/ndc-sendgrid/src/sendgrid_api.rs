@@ -153,7 +153,6 @@ pub struct SendMailRequest {
 
 #[derive(Serialize, Clone, Debug)]
 pub struct MailPersonalization {
-    pub from: Option<MailAddress>,
     pub to: Vec<MailAddress>,
     pub cc: Option<Vec<MailAddress>>,
     pub bcc: Option<Vec<MailAddress>>,
