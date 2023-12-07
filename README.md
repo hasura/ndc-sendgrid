@@ -82,3 +82,13 @@ The `Dockerfile` is used by the `connector create` command and can be tested as 
 docker build . --tag ndc-sendgrid
 docker run -it --v ./sendgrid.connector.configuration.json:/config.json ndc-sendgrid
 ```
+
+## Support & Troubleshooting
+
+The documentation and community will help you troubleshoot most issues.
+If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
+
+- Support & feedback: [Discord](https://discord.gg/hasura)
+- Issue & bug tracking: [GitHub issues](https://github.com/hasura/graphql-engine/issues)
+- Follow product updates: [@HasuraHQ](https://twitter.com/hasurahq)
+- Talk to us on our [website chat](https://hasura.io)
