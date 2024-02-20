@@ -1,5 +1,7 @@
+use std::path::Path;
 use async_trait::async_trait;
 use ndc_sdk::connector;
+use ndc_sdk::json_response::JsonResponse;
 use ndc_sdk::models;
 
 use super::configuration;
@@ -17,39 +19,17 @@ pub struct SendGridConnectorState {
 
 #[async_trait]
 impl connector::Connector for SendGridConnector {
-    /// RawConfiguration is what the user specifies as JSON
-    type RawConfiguration = configuration::RawSendGridConfiguration;
     /// The type of validated configuration
     type Configuration = configuration::SendGridConfiguration;
     /// The type of unserializable state
     type State = SendGridConnectorState;
 
-    fn make_empty_configuration() -> configuration::RawSendGridConfiguration {
-        configuration::RawSendGridConfiguration::default()
-    }
-
-    fn get_read_regions(_conf: &Self::Configuration) -> std::vec::Vec<std::string::String> {
-        vec!()
-    }
-
-    fn get_write_regions(_conf: &Self::Configuration) -> std::vec::Vec<std::string::String> {
-        vec!()
-    }
-
-    /// Configure a configuration maybe?
-    async fn update_configuration(
-        args: &configuration::RawSendGridConfiguration,
-    ) -> Result<configuration::RawSendGridConfiguration, connector::UpdateConfigurationError> {
-        Ok(args.clone())
-    }
-
     /// Validate the raw configuration provided by the user,
     /// returning a configuration error or a validated [`Connector::Configuration`].
-    async fn validate_raw_configuration(
-        configuration: &configuration::RawSendGridConfiguration,
-        _regions: &std::collections::BTreeMap<std::string::String,std::vec::Vec<std::string::String> >
+    async fn parse_configuration(
+        configuration_dir: impl AsRef<Path> + Send,
     ) -> Result<configuration::SendGridConfiguration, connector::ValidateError> {
-        configuration::validate_raw_configuration(configuration)
+        configuration::parse_configuration(configuration_dir)
     }
 
     /// Initialize the connector's in-memory state.
@@ -95,23 +75,24 @@ impl connector::Connector for SendGridConnector {
     ///
     /// This function implements the [capabilities endpoint](https://hasura.github.io/ndc-spec/specification/capabilities.html)
     /// from the NDC specification.
-    async fn get_capabilities() -> models::CapabilitiesResponse {
-        models::CapabilitiesResponse {
-            versions: String::from("^0.1.0"),
-            capabilities: models::Capabilities {
-                query: Some(models::QueryCapabilities {
-                    relation_comparisons: None,
-                    order_by_aggregate: None,
-                    foreach: None,
-                }),
-                explain: None,
-                relationships: None,
-                mutations: Some(models::MutationCapabilities {
-                    nested_inserts: None,
-                    returning: None,
-                }),
-            },
-        }
+    async fn get_capabilities() -> JsonResponse<models::CapabilitiesResponse> {
+        JsonResponse::Value(
+            models::CapabilitiesResponse {
+                version: String::from("0.1.0"),
+                capabilities: models::Capabilities {
+                    query: models::QueryCapabilities {
+                        aggregates: None,
+                        variables: None,
+                        explain: None,
+                    },
+                    relationships: None,
+                    mutation: models::MutationCapabilities {
+                        transactional: None,
+                        explain: None
+                    },
+                },
+            }
+        )
     }
 
     /// Get the connector's schema.
@@ -120,20 +101,32 @@ impl connector::Connector for SendGridConnector {
     /// from the NDC specification.
     async fn get_schema(
         _configuation: &configuration::SendGridConfiguration,
-    ) -> Result<models::SchemaResponse, connector::SchemaError> {
-        Ok(schema::make_schema_response())
+    ) -> Result<JsonResponse<models::SchemaResponse>, connector::SchemaError> {
+        Ok(JsonResponse::Value(schema::make_schema_response()))
     }
 
     /// Explain a query by creating an execution plan
     ///
-    /// This function implements the [explain endpoint](https://hasura.github.io/ndc-spec/specification/explain.html)
+    /// This function implements the [query/explain endpoint](https://hasura.github.io/ndc-spec/specification/explain.html)
     /// from the NDC specification.
-    async fn explain(
+    async fn query_explain(
         _configuration: &configuration::SendGridConfiguration,
         _state: &SendGridConnectorState,
         _query_request: models::QueryRequest,
-    ) -> Result<models::ExplainResponse, connector::ExplainError> {
-        Err(connector::ExplainError::UnsupportedOperation(String::from("explain is not supported")))
+    ) -> Result<JsonResponse<models::ExplainResponse>, connector::ExplainError> {
+        Err(connector::ExplainError::UnsupportedOperation(String::from("query explain is not supported")))
+    }
+
+    /// Explain a mutation by creating an execution plan
+    ///
+    /// This function implements the [mutation/explain endpoint](https://hasura.github.io/ndc-spec/specification/explain.html)
+    /// from the NDC specification.
+    async fn mutation_explain(
+        _configuration: &Self::Configuration,
+        _state: &Self::State,
+        _request: models::MutationRequest,
+    ) -> Result<JsonResponse<models::ExplainResponse>, connector::ExplainError> {
+        Err(connector::ExplainError::UnsupportedOperation(String::from("mutation explain is not supported")))
     }
 
     /// Execute a mutation
@@ -144,8 +137,8 @@ impl connector::Connector for SendGridConnector {
         configuration: &configuration::SendGridConfiguration,
         state: &SendGridConnectorState,
         request: models::MutationRequest,
-    ) -> Result<models::MutationResponse, connector::MutationError> {
-        mutation::execute(&state.http_client, configuration, request).await
+    ) -> Result<JsonResponse<models::MutationResponse>, connector::MutationError> {
+        mutation::execute(&state.http_client, configuration, request).await.map(JsonResponse::Value)
     }
 
     /// Execute a query
@@ -156,7 +149,7 @@ impl connector::Connector for SendGridConnector {
         configuration: &configuration::SendGridConfiguration,
         state: &SendGridConnectorState,
         query_request: models::QueryRequest,
-    ) -> Result<models::QueryResponse, connector::QueryError> {
-        query::execute(&state.http_client, configuration, query_request).await
+    ) -> Result<JsonResponse<models::QueryResponse>, connector::QueryError> {
+        query::execute(&state.http_client, configuration, query_request).await.map(JsonResponse::Value)
     }
 }

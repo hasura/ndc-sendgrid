@@ -1,6 +1,7 @@
 mod configuration;
 mod connector;
 mod schema;
+mod fields;
 mod mutation;
 mod query;
 mod sendgrid_api;
