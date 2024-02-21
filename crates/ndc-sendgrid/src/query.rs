@@ -2,8 +2,10 @@ use std::collections::BTreeMap;
 use indexmap::IndexMap;
 use ndc_sdk::{
     connector::QueryError,
-    models::{Argument, QueryRequest, QueryResponse, RowFieldValue, RowSet},
+    models::{Argument, QueryRequest, QueryResponse, RowSet},
 };
+
+use crate::fields::eval_row;
 
 use super::configuration;
 use super::schema::LIST_TEMPLATES_FUNCTION_NAME;
@@ -70,10 +72,11 @@ pub async fn execute(
                 Ok(list_response) => {
                     let result = serde_json::to_value(list_response.result)
                         .map_err(|err| QueryError::Other(Box::new(err)))?;
-                    let response_row =
-                        IndexMap::from([(String::from("__value"), RowFieldValue(result))]);
+                    let result_row =
+                        IndexMap::from([(String::from("__value"), result)]);
+                    let projected_row = query_request.query.fields.map(|fields| eval_row(&fields, &result_row)).transpose()?;
                     Ok(QueryResponse(vec![RowSet {
-                        rows: Some(vec![response_row]),
+                        rows: projected_row.map(|row| vec![row]),
                         aggregates: None,
                     }]))
                 }

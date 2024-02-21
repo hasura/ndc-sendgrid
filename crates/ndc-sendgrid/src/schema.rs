@@ -18,7 +18,6 @@ pub fn make_schema_response() -> SchemaResponse {
         object_types: BTreeMap::from([
             (String::from("list_template_item"), list_template_item()),
             (String::from("list_template_version"), list_template_version()),
-            (String::from("send_mail_request"), send_mail_request()),
             (String::from("mail_personalization"), mail_personalization()),
             (String::from("mail_address"), mail_address()),
             (String::from("header"), header()),
@@ -40,19 +39,16 @@ pub fn make_schema_response() -> SchemaResponse {
 const STRING_SCALAR_TYPE: ScalarType = ScalarType {
     aggregate_functions: BTreeMap::new(),
     comparison_operators: BTreeMap::new(),
-    update_operators: BTreeMap::new(),
 };
 
 const INT_SCALAR_TYPE: ScalarType = ScalarType {
     aggregate_functions: BTreeMap::new(),
     comparison_operators: BTreeMap::new(),
-    update_operators: BTreeMap::new(),
 };
 
 const BOOL_SCALAR_TYPE: ScalarType = ScalarType {
     aggregate_functions: BTreeMap::new(),
     comparison_operators: BTreeMap::new(),
-    update_operators: BTreeMap::new(),
 };
 
 fn list_template_item() -> ObjectType {
@@ -196,56 +192,53 @@ pub struct SendMailRequest {
     pub asm: Option<sendgrid_api::UnsubscriptionSettings>,
 }
 
-fn send_mail_request() -> ObjectType {
-    ObjectType {
-        description: Some(String::from("The request properties for sending mail")),
-        fields: BTreeMap::from([
-            (String::from("personalizations"), ObjectField {
-                r#type: array_of(named("mail_personalization")),
-                description: Some(String::from("An array of messages and their metadata. Each object within personalizations can be thought of as an envelope - it defines who should receive an individual message and how that message should be handled."))
-            }),
-            (String::from("from"), ObjectField {
-                r#type: named("mail_address"),
-                description: Some(String::from("The 'From' email address used to deliver the message. This address should be a verified sender in your Twilio SendGrid account."))
-            }),
-            (String::from("reply_to_list"), ObjectField {
-                r#type: array_of(named("mail_address")),
-                description: Some(String::from("An array of recipients who will receive replies."))
-            }),
-            (String::from("subject"), ObjectField {
-                r#type: named("String"),
-                description: Some(String::from("The global or 'message level' subject of your email. This may be overridden by subject lines set in personalizations."))
-            }),
-            (String::from("content"), ObjectField {
-                r#type: array_of(named("mail_content")),
-                description: Some(String::from("An array where you can specify the content of your email. You can include multiple MIME types of content, but you must specify at least one MIME type."))
-            }),
-            (String::from("attachments"), ObjectField {
-                r#type: nullable(array_of(named("mail_attachment"))),
-                description: Some(String::from("An array of objects where you can specify any attachments you want to include."))
-            }),
-            (String::from("template_id"), ObjectField {
-                r#type: nullable(named("Bool")),
-                description: Some(String::from("An email template ID. A template that contains a subject and content — either text or html — will override any subject and content values specified at the personalizations or message level."))
-            }),
-            (String::from("headers"), ObjectField {
-                r#type: nullable(array_of(named("header"))),
-                description: Some(String::from("The headers to put on the mail. You must ensure these are properly encoded if they contain unicode characters. These headers cannot be one of the reserved headers."))
-            }),
-            (String::from("send_at"), ObjectField {
-                r#type: nullable(named("Int")),
-                description: Some(String::from("A unix timestamp allowing you to specify when you want your email to be delivered. This may be overridden by the send_at parameter set at the personalizations level. Delivery cannot be scheduled more than 72 hours in advance."))
-            }),
-            (String::from("batch_id"), ObjectField {
-                r#type: nullable(named("String")),
-                description: Some(String::from("An ID representing a batch of emails to be sent at the same time. Including a batch_id in your request allows you include this email in that batch. It also enables you to cancel or pause the delivery of that batch."))
-            }),
-            (String::from("asm"), ObjectField {
-                r#type: nullable(named("unsubscription_settings")),
-                description: Some(String::from("An object allowing you to specify how to handle unsubscribes."))
-            }),
-        ]),
-    }
+fn send_mail_request_args() -> BTreeMap<String, ArgumentInfo> {
+    BTreeMap::from([
+        (String::from("personalizations"), ArgumentInfo {
+            argument_type: array_of(named("mail_personalization")),
+            description: Some(String::from("An array of messages and their metadata. Each object within personalizations can be thought of as an envelope - it defines who should receive an individual message and how that message should be handled."))
+        }),
+        (String::from("from"), ArgumentInfo {
+            argument_type: named("mail_address"),
+            description: Some(String::from("The 'From' email address used to deliver the message. This address should be a verified sender in your Twilio SendGrid account."))
+        }),
+        (String::from("reply_to_list"), ArgumentInfo {
+            argument_type: array_of(named("mail_address")),
+            description: Some(String::from("An array of recipients who will receive replies."))
+        }),
+        (String::from("subject"), ArgumentInfo {
+            argument_type: named("String"),
+            description: Some(String::from("The global or 'message level' subject of your email. This may be overridden by subject lines set in personalizations."))
+        }),
+        (String::from("content"), ArgumentInfo {
+            argument_type: array_of(named("mail_content")),
+            description: Some(String::from("An array where you can specify the content of your email. You can include multiple MIME types of content, but you must specify at least one MIME type."))
+        }),
+        (String::from("attachments"), ArgumentInfo {
+            argument_type: nullable(array_of(named("mail_attachment"))),
+            description: Some(String::from("An array of objects where you can specify any attachments you want to include."))
+        }),
+        (String::from("template_id"), ArgumentInfo {
+            argument_type: nullable(named("Bool")),
+            description: Some(String::from("An email template ID. A template that contains a subject and content — either text or html — will override any subject and content values specified at the personalizations or message level."))
+        }),
+        (String::from("headers"), ArgumentInfo {
+            argument_type: nullable(array_of(named("header"))),
+            description: Some(String::from("The headers to put on the mail. You must ensure these are properly encoded if they contain unicode characters. These headers cannot be one of the reserved headers."))
+        }),
+        (String::from("send_at"), ArgumentInfo {
+            argument_type: nullable(named("Int")),
+            description: Some(String::from("A unix timestamp allowing you to specify when you want your email to be delivered. This may be overridden by the send_at parameter set at the personalizations level. Delivery cannot be scheduled more than 72 hours in advance."))
+        }),
+        (String::from("batch_id"), ArgumentInfo {
+            argument_type: nullable(named("String")),
+            description: Some(String::from("An ID representing a batch of emails to be sent at the same time. Including a batch_id in your request allows you include this email in that batch. It also enables you to cancel or pause the delivery of that batch."))
+        }),
+        (String::from("asm"), ArgumentInfo {
+            argument_type: nullable(named("unsubscription_settings")),
+            description: Some(String::from("An object allowing you to specify how to handle unsubscribes."))
+        }),
+    ])
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -489,72 +482,7 @@ fn send_mail() -> ProcedureInfo {
     ProcedureInfo {
         name: String::from(SEND_MAIL),
         description: Some(String::from("Allows you to send email")),
-        arguments: BTreeMap::from([
-            (String::from("from"),
-                ArgumentInfo {
-                    description: Some(String::from("An array of messages and their metadata. Each object within personalizations can be thought of as an envelope - it defines who should receive an individual message and how that message should be handled.")),
-                    argument_type: named("String") }),
-            (String::from("to"),
-                ArgumentInfo {
-                    description: Some(String::from("An address that will be sent the email.")),
-                    argument_type: named("String") }),
-            (String::from("cc"),
-                ArgumentInfo {
-                    description: Some(String::from("An address that will be cced the email.")),
-                    argument_type: nullable(named("String")) }),
-            (String::from("bcc"),
-                ArgumentInfo {
-                    description: Some(String::from("An address that will be bcced the email.")),
-                    argument_type: nullable(named("String")) }),
-            (String::from("reply_to"),
-                ArgumentInfo {
-                    description: Some(String::from("An array of recipients who will receive replies.")),
-                    argument_type: nullable(named("String")) }),
-            (String::from("subject"),
-                ArgumentInfo {
-                    description: Some(String::from("The subject of your email. See character length requirements according to RFC 2822.")),
-                    argument_type: named("String") }),
-            // (String::from("content"),
-            //     ArgumentInfo {
-            //         description: Some(String::from("An array where you can specify the content of your email. You can include multiple MIME types of content, but you must specify at least one MIME type.")),
-            //         argument_type: named("mail_content") }),
-            (String::from("content_type"),
-                ArgumentInfo {
-                    description: Some(String::from("The MIME type of the content you are including in your email")),
-                    argument_type: named("String") }),
-            (String::from("content"),
-                ArgumentInfo {
-                    description: Some(String::from("The actual content of the specified MIME type that you are including in your email.")),
-                    argument_type: named("String") }),
-                // (String::from("type"), ObjectField {
-                //     r#type: named("String"),
-                //     description: Some(String::from("The MIME type of the content you are including in your email"))
-                // }),
-                // (String::from("name"), ObjectField {
-                //     r#type: named("String"),
-                //     description: Some(String::from("The actual content of the specified MIME type that you are including in your email."))
-                // }),
-            // (String::from("attachment"),
-            //     ArgumentInfo {
-            //         description: Some(String::from("An object where you can specify an attachment you want to include.")),
-            //         argument_type: nullable(named("mail_attachment")) }),
-            (String::from("template_id"),
-                ArgumentInfo {
-                    description: Some(String::from("An email template ID. A template that contains a subject and content — either text or html — will override any subject and content values specified at the personalizations or message level.")),
-                    argument_type: nullable(named("String")) }),
-            (String::from("send_at"),
-                ArgumentInfo {
-                    description: Some(String::from("A unix timestamp allowing you to specify when you want your email to be delivered. This may be overridden by the send_at parameter set at the personalizations level. Delivery cannot be scheduled more than 72 hours in advance.")),
-                    argument_type: nullable(named("Int")) }),
-            (String::from("batch_id"),
-                ArgumentInfo {
-                    description: Some(String::from("An ID representing a batch of emails to be sent at the same time. Including a batch_id in your request allows you include this email in that batch. It also enables you to cancel or pause the delivery of that batch.")),
-                    argument_type: nullable(named("String")) }) //,
-            // (String::from("asm"),
-            //     ArgumentInfo {
-            //         description: Some(String::from("An object allowing you to specify how to handle unsubscribes.")),
-            //         argument_type: nullable(named("unsubscription_settings")) })
-        ]),
+        arguments: send_mail_request_args(),
         result_type: named("send_mail_response"),
     }
 }

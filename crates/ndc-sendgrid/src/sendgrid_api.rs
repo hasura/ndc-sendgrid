@@ -129,11 +129,9 @@ pub struct SimpleSendMailRequest {
     pub reply_to: Option<MailAddress>,
     pub subject: String,
     pub content: MailContent,
-    pub attachment: Option<MailAttachment>,
     pub template_id: Option<String>,
     pub send_at: Option<u32>,
     pub batch_id: Option<String>,
-    pub asm: Option<UnsubscriptionSettings>,
 }
 
 #[derive(Serialize, Clone, Debug)]

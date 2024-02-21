@@ -7,6 +7,10 @@ This changelog documents changes between release tags.
 
 Upcoming changes for the next versioned release.
 
+## v0.3
+
+* Updated with the latest NDC SDK version that supports NDC Spec v0.1.0-rc.16
+* send_mail procedure now takes the full send mail request type and uses nested objects
 
 ## v0.2
 
