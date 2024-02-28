@@ -4,6 +4,9 @@ name: Create and publish a Docker image
 
 # Configures this workflow to run every time a change is pushed to selected tags and branches
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
