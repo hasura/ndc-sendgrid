@@ -453,11 +453,11 @@ fn unsubscription_settings() -> ObjectType {
         description: Some(String::from("An object allowing you to specify how to handle unsubscribes.")),
         fields: BTreeMap::from([
             (String::from("group_id"), ObjectField {
-                r#type: named("String"),
+                r#type: named("Int"),
                 description: Some(String::from("The unsubscribe group to associate with this email."))
             }),
             (String::from("groups_to_display"), ObjectField {
-                r#type: nullable(array_of(named("group_id"))),
+                r#type: nullable(array_of(named("Int"))),
                 description: Some(String::from("An array containing the unsubscribe groups that you would like to be displayed on the unsubscribe preferences page."))
             }),
         ]),

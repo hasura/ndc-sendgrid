@@ -185,8 +185,8 @@ pub struct MailAttachment {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct UnsubscriptionSettings {
-    pub group_id: String,
-    pub groups_to_display: Option<Vec<String>>,
+    pub group_id: u32,
+    pub groups_to_display: Option<Vec<u32>>,
 }
 
 pub async fn invoke_list_function_templates(
