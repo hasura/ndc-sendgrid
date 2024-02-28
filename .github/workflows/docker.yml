@@ -75,7 +75,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: connector-definition.tgz
-          path: ./connector-definition/dist/connector-definition.tgz
+          path: ./connector-definition/dist
       - name: Get version from tag
         id: get-version
         run: |
