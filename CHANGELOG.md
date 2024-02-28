@@ -5,7 +5,7 @@ This changelog documents changes between release tags.
 ## [Unreleased]
 Upcoming changes for the next versioned release.
 
-## [0.5] - 2024-02-28
+## [0.5.0] - 2024-02-28
 * Fix incorrect types used on unsubscription_settings object type ([#9](https://github.com/hasura/ndc-sendgrid/pull/9))
 
 ## [0.4] - 2024-02-21
