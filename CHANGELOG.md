@@ -7,6 +7,9 @@ This changelog documents changes between release tags.
 
 Upcoming changes for the next versioned release.
 
+## v0.5
+* Fix incorrect types used on unsubscription_settings object type ([#9](https://github.com/hasura/ndc-sendgrid/pull/9))
+
 ## v0.4
 
 * Updated with the latest NDC SDK version that supports NDC Spec v0.1.0-rc.16
