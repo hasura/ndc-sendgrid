@@ -4,8 +4,10 @@ packagingDefinition:
 supportedEnvironmentVariables:
   - name: SENDGRID_API_KEY
     description: The SendGrid API key to use
+    required: true
 commands: {}
 dockerComposeWatch:
   - path: ./
     target: /etc/connector
     action: sync+restart
+documentationPage: https://hasura.info/sendgrid-getting-started

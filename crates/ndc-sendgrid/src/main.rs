@@ -1,9 +1,9 @@
 mod configuration;
 mod connector;
-mod schema;
 mod fields;
 mod mutation;
 mod query;
+mod schema;
 mod sendgrid_api;
 
 use connector::SendGridConnector;

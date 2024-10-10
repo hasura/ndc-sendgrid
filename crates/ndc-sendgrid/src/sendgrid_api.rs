@@ -30,15 +30,15 @@ pub struct ListTransactionalTemplatesParams {
 }
 
 impl ListTransactionalTemplatesParams {
-    pub fn to_query_params(self: &Self) -> Vec<(String, String)> {
+    pub fn to_query_params(&self) -> Vec<(String, String)> {
         let mut params = Vec::<(String, String)>::new();
-        self.generations
-            .as_ref()
-            .map(|gen| params.push((String::from("generations"), gen.clone())));
+        if let Some(gen) = &self.generations {
+            params.push((String::from("generations"), gen.clone()))
+        }
         params.push((String::from("page_size"), self.page_size.to_string()));
-        self.page_token
-            .as_ref()
-            .map(|page_token| params.push((String::from("page_token"), page_token.clone())));
+        if let Some(page_token) = &self.page_token {
+            params.push((String::from("page_token"), page_token.clone()))
+        }
         params
     }
 }

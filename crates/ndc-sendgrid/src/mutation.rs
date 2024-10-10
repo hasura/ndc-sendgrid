@@ -1,6 +1,7 @@
-use ndc_sdk::connector::MutationError;
+use ndc_sdk::connector::{self, MutationError};
 use ndc_sdk::models::{
-    MutationOperation, MutationOperationResults, MutationRequest, MutationResponse, NestedField
+    ArgumentName, MutationOperation, MutationOperationResults, MutationRequest, MutationResponse,
+    NestedField,
 };
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -16,7 +17,7 @@ pub async fn execute(
     http_client: &reqwest::Client,
     configuration: &configuration::SendGridConfiguration,
     mutation_request: MutationRequest,
-) -> Result<MutationResponse, MutationError> {
+) -> connector::Result<MutationResponse> {
     let mut operation_results = vec![];
 
     for operation in mutation_request.operations {
@@ -24,16 +25,14 @@ pub async fn execute(
         operation_results.push(result)
     }
 
-    Ok(MutationResponse {
-        operation_results: operation_results,
-    })
+    Ok(MutationResponse { operation_results })
 }
 
 async fn process_operation(
     http_client: &reqwest::Client,
     configuration: &configuration::SendGridConfiguration,
     mutation_operation: MutationOperation,
-) -> Result<MutationOperationResults, MutationError> {
+) -> connector::Result<MutationOperationResults> {
     match mutation_operation {
         MutationOperation::Procedure {
             name,
@@ -41,9 +40,10 @@ async fn process_operation(
             fields,
         } => match name.as_str() {
             SEND_MAIL => process_send_mail(http_client, configuration, arguments, fields).await,
-            unknown_procedure => Err(MutationError::InvalidRequest(format!(
+            unknown_procedure => Err(MutationError::new_invalid_request(&format!(
                 "Unknown procedure: {unknown_procedure}"
-            ))),
+            ))
+            .into()),
         },
     }
 }
@@ -51,36 +51,42 @@ async fn process_operation(
 async fn process_send_mail(
     http_client: &reqwest::Client,
     configuration: &configuration::SendGridConfiguration,
-    arguments: BTreeMap<String, Value>,
+    arguments: BTreeMap<ArgumentName, Value>,
     fields: Option<NestedField>,
-) -> Result<MutationOperationResults, MutationError> {
+) -> connector::Result<MutationOperationResults> {
     let request = parse_send_mail_args(&arguments)?;
 
     sendgrid_api::invoke_send_mail(http_client, &configuration.sendgrid_api_key, &request)
         .await
-        .map_err(|err| MutationError::Other(Box::new(err)))?;
+        .map_err(|err| connector::ErrorResponse::from(err.to_string()))?;
 
-    let batch_id_value = request
-        .batch_id
-        .clone()
-        .map_or(Value::Null, |id| Value::String(id));
-    let result_value = Value::Object(serde_json::Map::from_iter([("batch_id".to_string(), batch_id_value)]));
+    let batch_id_value = request.batch_id.clone().map_or(Value::Null, Value::String);
+    let result_value = Value::Object(serde_json::Map::from_iter([(
+        "batch_id".to_string(),
+        batch_id_value,
+    )]));
 
     let projected_result_value = match fields {
         Some(fields) => eval_nested_field(result_value, &fields)?.0,
-        None => result_value
+        None => result_value,
     };
 
-    Ok(MutationOperationResults::Procedure { result: projected_result_value })
+    Ok(MutationOperationResults::Procedure {
+        result: projected_result_value,
+    })
 }
 
 fn parse_send_mail_args(
-    in_args: &BTreeMap<String, Value>,
+    in_args: &BTreeMap<ArgumentName, Value>,
 ) -> Result<sendgrid_api::SendMailRequest, MutationError> {
-    let args_request = serde_json::Value::Object(serde_json::Map::from_iter(in_args.clone()));
-    let schema_request = serde_json::from_value::<schema::SendMailRequest>(args_request)
-        .map_err(|err| {
-            MutationError::InvalidRequest(format!("Unable to deserialize arguments: {err}"))
+    let args_request = serde_json::Value::Object(serde_json::Map::from_iter(
+        in_args
+            .iter()
+            .map(|(name, value)| (name.as_str().to_owned(), value.clone())),
+    ));
+    let schema_request =
+        serde_json::from_value::<schema::SendMailRequest>(args_request).map_err(|err| {
+            MutationError::new_invalid_request(&format!("Unable to deserialize arguments: {err}"))
         })?;
 
     let request = sendgrid_api::SendMailRequest {

@@ -1,20 +1,20 @@
 [package]
 name = "ndc-sendgrid"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# ndc-client = { git = "https://github.com/hasura/ndc-spec.git", tag = "v0.1.0-rc.4" }
-ndc-sdk = { git = "https://github.com/hasura/ndc-hub.git", rev = "660750a", package = "ndc-sdk" }
+ndc-sdk = { git = "https://github.com/hasura/ndc-sdk-rs.git", tag = "v0.4.0" }
 
 async-trait = "0.1"
 prometheus = { version = "0.13" }
-schemars = { version = "0.8.16", features = ["smol_str"] }
+schemars = { version = "0.8", features = ["smol_str"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 tokio = { version = "1", features = ["full"] }
-reqwest = { version = "0.11.19" }
+http = { version = "0.2" }
+reqwest = { version = "0.12", features = ["json"] }
 indexmap = "^2"
 thiserror = { version = "*" } # Use the version from ndc-sdk
