@@ -5,6 +5,9 @@ This changelog documents changes between release tags.
 ## [Unreleased]
 Upcoming changes for the next versioned release.
 
+## [0.6.0] - 2024-10-10
+* Update NDC SDK to v0.4.0 (NDC Spec v0.1.6) ([#10](https://github.com/hasura/ndc-sendgrid/pull/10))
+
 ## [0.5.0] - 2024-02-28
 * Fix incorrect types used on unsubscription_settings object type ([#9](https://github.com/hasura/ndc-sendgrid/pull/9))
 
