@@ -1,20 +1,15 @@
 # SendGrid Connector
 
-> [!WARNING]
-> This connector has been updated to support the Hasura DDN Beta, and will not work with the Alpha.
-
 The SendGrid Native Data Connector allows for connecting to the SendGrid v3 API and exposing its functionality from your Hasura API.
 While this is a functional implementation of the SendGrid API, it also serves as a minimal example of an "Action" style connector using the [Rust Data Connector SDK](https://github.com/hasura/ndc-hub#rusk-sdk).
 
-* [SendGrid Connector information in the Hasura Connectors directory](https://hasura.io/connectors/sendgrid)
-* [Hasura V3 Documentation](https://hasura.io/docs/3.0)
+* [Hasura DDN Documentation](https://hasura.io/docs/3.0)
 
 In order to use this connector you will need to:
 
 * Create a [SendGrid API account](https://signup.sendgrid.com/)
 * Create an [API key](https://app.sendgrid.com/settings/api_keys)
-* Log in to A Hasura CLI Session
-* Create a Pre-Shared Token for service authentication between the Hasura V3 Engine and your connector
+* A Hasura DDN project (see the [Getting Started guide](https://hasura.io/docs/3.0/getting-started/overview/))
 
 ## Features
 
@@ -26,7 +21,33 @@ This connector is a minimal implementation of the SendGrid v3 API functions:
 It also serves as an example of how an `Action` style connector can be implemented in Hasura V3.
 
 ## For Hasura Users
-TBD
+Add the SendGrid connector to your DDN project by running
+
+```
+> ddn connector init -i
+```
+
+Select the SendGrid connector from the list and provide a name for the connector and your SendGrid API key.
+
+Then you need to introspect the connector to get its schema:
+
+```
+> ddn connector introspect <connector name>
+```
+
+And then you can add all the SendGrid commands to your supergraph:
+
+```
+> ddn command add <connector name> "*"
+```
+
+You can now build your supergraph, run it locally, and open the Hasura Console to try it out:
+
+```
+> ddn supergraph build local
+> ddn run docker-start
+> ddn console --local
+```
 
 ## For Developers
 
@@ -46,10 +67,7 @@ SENDGRID_API_KEY="YOUR-API-KEY-HERE" cargo run -- serve --configuration .
 ```
 
 ### Docker
-
-The `Dockerfile` is used by the `connector create` command and can be tested as follows:
-
 ```
 docker build . --tag ndc-sendgrid
-docker run -it -e SENDGRID_API_KEY="YOUR-API-KEY-HERE" ndc-sendgrid
+docker run --rm -it -e SENDGRID_API_KEY="YOUR-API-KEY-HERE" -p 8080:8080 ndc-sendgrid
 ```

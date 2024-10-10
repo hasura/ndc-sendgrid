@@ -1,4 +1,4 @@
-FROM rust:1.76-slim-buster AS build
+FROM rust:1.81-slim-bookworm AS build
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY ./Cargo.toml ./Cargo.toml
 RUN cargo build --release --all-targets
 
 
-FROM debian:buster-slim as ndc-sendgrid
+FROM debian:bookworm-slim AS ndc-sendgrid
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive \

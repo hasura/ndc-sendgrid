@@ -1,6 +1,7 @@
-use thiserror::Error;
+use http::StatusCode;
 use indexmap::IndexMap;
 use ndc_sdk::{connector, models};
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum FieldsError {
@@ -13,34 +14,28 @@ pub enum FieldsError {
     UnsupportedOperation(String),
 }
 
-impl From<FieldsError> for connector::QueryError {
+impl From<FieldsError> for connector::ErrorResponse {
     fn from(value: FieldsError) -> Self {
         match value {
-            FieldsError::InvalidRequest(err) => connector::QueryError::InvalidRequest(err),
-            FieldsError::UnsupportedOperation(err) => connector::QueryError::UnsupportedOperation(err)
-        }
-    }
-}
-
-impl From<FieldsError> for connector::MutationError {
-    fn from(value: FieldsError) -> Self {
-        match value {
-            FieldsError::InvalidRequest(err) => connector::MutationError::InvalidRequest(err),
-            FieldsError::UnsupportedOperation(err) => connector::MutationError::UnsupportedOperation(err)
+            FieldsError::InvalidRequest(err) => {
+                connector::ErrorResponse::new(StatusCode::BAD_REQUEST, err, serde_json::Value::Null)
+            }
+            FieldsError::UnsupportedOperation(err) => connector::ErrorResponse::new(
+                StatusCode::NOT_IMPLEMENTED,
+                err,
+                serde_json::Value::Null,
+            ),
         }
     }
 }
 
 pub fn eval_row(
-    fields: &IndexMap<String, models::Field>,
+    fields: &IndexMap<models::FieldName, models::Field>,
     item: &IndexMap<String, serde_json::Value>,
-) -> Result<IndexMap<String, models::RowFieldValue>, FieldsError> {
+) -> Result<IndexMap<models::FieldName, models::RowFieldValue>, FieldsError> {
     let mut row = IndexMap::new();
     for (field_name, field) in fields.iter() {
-        row.insert(
-            field_name.clone(),
-            eval_field(field, item)?,
-        );
+        row.insert(field_name.clone(), eval_field(field, item)?);
     }
     Ok(row)
 }
@@ -50,25 +45,33 @@ fn eval_field(
     item: &IndexMap<String, serde_json::Value>,
 ) -> Result<models::RowFieldValue, FieldsError> {
     match field {
-        models::Field::Column { column, fields } => {
+        models::Field::Column {
+            column,
+            fields,
+            arguments: _,
+        } => {
             let col_val = eval_column(item, column.as_str())?;
             match fields {
                 None => Ok(models::RowFieldValue(col_val)),
-                Some(nested_field) => eval_nested_field(
-                    col_val,
-                    nested_field,
-                ),
+                Some(nested_field) => eval_nested_field(col_val, nested_field),
             }
         }
-        models::Field::Relationship { .. } => {
-            Err(FieldsError::UnsupportedOperation("Relationship fields are not supported".into()))
-        }
+        models::Field::Relationship { .. } => Err(FieldsError::UnsupportedOperation(
+            "Relationship fields are not supported".into(),
+        )),
     }
 }
 
-fn eval_column(row: &IndexMap<String, serde_json::Value>, column_name: &str) -> Result<serde_json::Value, FieldsError> {
-    row.get(column_name).cloned()
-        .ok_or(FieldsError::InvalidRequest(format!("invalid column name: {}", column_name)))
+fn eval_column(
+    row: &IndexMap<String, serde_json::Value>,
+    column_name: &str,
+) -> Result<serde_json::Value, FieldsError> {
+    row.get(column_name)
+        .cloned()
+        .ok_or(FieldsError::InvalidRequest(format!(
+            "invalid column name: {}",
+            column_name
+        )))
 }
 
 pub fn eval_nested_field(
@@ -77,17 +80,24 @@ pub fn eval_nested_field(
 ) -> Result<models::RowFieldValue, FieldsError> {
     match nested_field {
         models::NestedField::Object(models::NestedObject { fields }) => {
-            let full_row: IndexMap<String, serde_json::Value> = serde_json::from_value(value).map_err(|_| FieldsError::InvalidRequest("Object expected".into()))?;
+            let full_row: IndexMap<String, serde_json::Value> = serde_json::from_value(value)
+                .map_err(|_| FieldsError::InvalidRequest("Object expected".into()))?;
             let row = eval_row(fields, &full_row)?;
-            Ok(models::RowFieldValue(serde_json::to_value(row).map_err(|_| FieldsError::InvalidRequest("Cannot encode rowset".into()))?))
+            Ok(models::RowFieldValue(serde_json::to_value(row).map_err(
+                |_| FieldsError::InvalidRequest("Cannot encode rowset".into()),
+            )?))
         }
         models::NestedField::Array(models::NestedArray { fields }) => {
-            let array: Vec<serde_json::Value> = serde_json::from_value(value).map_err(|_| FieldsError::InvalidRequest("Array expected".into()))?;
+            let array: Vec<serde_json::Value> = serde_json::from_value(value)
+                .map_err(|_| FieldsError::InvalidRequest("Array expected".into()))?;
             let result_array = array
                 .into_iter()
                 .map(|value| eval_nested_field(value, fields))
                 .collect::<Result<Vec<_>, FieldsError>>()?;
-            Ok(models::RowFieldValue(serde_json::to_value(result_array).map_err(|_| FieldsError::InvalidRequest("Cannot encode rowset".into()))?))
+            Ok(models::RowFieldValue(
+                serde_json::to_value(result_array)
+                    .map_err(|_| FieldsError::InvalidRequest("Cannot encode rowset".into()))?,
+            ))
         }
     }
 }
